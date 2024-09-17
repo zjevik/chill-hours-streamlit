@@ -47,7 +47,6 @@ def get_data(lat,lon,from_year,to_year):
 
 time_now = datetime.datetime.now()
 
-min_value = 2000
 max_value = time_now.year+1
 
 col1, col2 = st.columns([0.2,0.8], gap='medium')
@@ -57,9 +56,9 @@ with col1:
 with col2:
     from_year, to_year = st.slider(
         'Which years are you interested in?',
-        min_value=min_value,
+        min_value=1980,
         max_value=max_value,
-        value=[min_value, max_value])
+        value=[2000, max_value])
 
 if (len(zip_code) != 5) or (not zip_code.isdecimal()):
     st.error('Missing 5 digit zip code!')
@@ -73,7 +72,7 @@ else:
         'Chill temperature range [fahrenheit]',
         min_value=-60,
         max_value=45,
-        value=[-32, 45])
+        value=[32, 45])
 
 
     df, weather_gps = get_data(lat,lon,from_year,to_year)
