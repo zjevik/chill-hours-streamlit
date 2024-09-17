@@ -1,4 +1,4 @@
-# :earth_americas: GDP dashboard template
+# :snowflake: Chill hour calculator!
 
 A simple Streamlit app showing the historical data on chill hours in USA by zip code.
 
