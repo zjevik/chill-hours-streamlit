@@ -16,7 +16,7 @@ def zip_to_gps(zipcode):
 
 # Set the title and favicon that appear in the Browser's tab bar.
 st.set_page_config(
-    page_title='Chill hours',
+    page_title='Chill hours by zip',
     page_icon=':snowflake:', # This is an emoji shortcode. Could be a URL too.
 )
 
@@ -40,6 +40,9 @@ def get_data(lat,lon,from_year,to_year):
 # -----------------------------------------------------------------------------
 # Draw the actual page
 
+st.markdown("""Are you trying to find what are the typical chill hours for you specific location? 
+I couldn't find any nifty web app that would show me the current or historical chill hours so I made one!
+Just enter your ZIP and see for yourself.""") 
 
 # Add some spacing
 ''
@@ -95,4 +98,4 @@ else:
 
 ''
 
-st.text("""This app uses weather data from https://open-meteo.com/""") 
+st.markdown("""This app wouldn't be possible without the historical weather data from https://open-meteo.com/""") 
