@@ -58,7 +58,7 @@ with col2:
         'Which years are you interested in?',
         min_value=1980,
         max_value=max_value,
-        value=[2000, max_value])
+        value=[2020, max_value])
 
 if (len(zip_code) != 5) or (not zip_code.isdecimal()):
     st.error('Missing 5 digit zip code!')
