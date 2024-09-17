@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 import pgeocode
 import plotly.express as px
+import plotly.figure_factory as ff
 import requests
 import datetime
 import ast
@@ -15,8 +16,8 @@ def zip_to_gps(zipcode):
 
 # Set the title and favicon that appear in the Browser's tab bar.
 st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+    page_title='Chill hours',
+    page_icon=':snowflake:', # This is an emoji shortcode. Could be a URL too.
 )
 
 # -----------------------------------------------------------------------------
@@ -46,8 +47,8 @@ def get_data(lat,lon,from_year,to_year):
 
 time_now = datetime.datetime.now()
 
-min_value = 2020
-max_value = time_now.year
+min_value = 2000
+max_value = time_now.year+1
 
 col1, col2 = st.columns([0.2,0.8], gap='medium')
 with col1:
@@ -60,76 +61,39 @@ with col2:
         max_value=max_value,
         value=[min_value, max_value])
 
+if (len(zip_code) != 5) or (not zip_code.isdecimal()):
+    st.error('Missing 5 digit zip code!')
 
-lat, lon = zip_to_gps(zip_code)
+else:
+    lat, lon = zip_to_gps(zip_code)
+
+    ''
+    ''
+    chill_min, chill_max = st.slider(
+        'Chill temperature range [fahrenheit]',
+        min_value=-60,
+        max_value=45,
+        value=[-32, 45])
+
+
+    df, weather_gps = get_data(lat,lon,from_year,to_year)
+    df['count'] = (df['temperature_2m'] <= chill_max) & (df['temperature_2m'] >= chill_min)
+    df['chill_hours'] = df.groupby('year')['count'].cumsum()
+    df['day_cnt'] = df.groupby('year').cumcount()
+    df['date'] = df['time'].dt.strftime('%B-%d')
+    df['max_chill_hours'] = df['year'].map(df.groupby('year')['chill_hours'].max().to_dict())
+
+    # drop zero values
+    df = df[df['chill_hours']>0]
+
+    # drop max values
+    df = df[df['chill_hours'] != df['max_chill_hours']]
+    ''
+    st.header('Chill hours', divider='gray')
+    fig = px.line(df, x='date', y='chill_hours', color='year', category_orders={'date':df.sort_values('day_cnt')['date']})
+    st.plotly_chart(fig)
+
 
 ''
-''
-chill_min, chill_max = st.slider(
-    'Chill temperature range [fahrenheit]',
-    min_value=-60,
-    max_value=45,
-    value=[-60, 45])
 
-
-df, weather_gps = get_data(lat,lon,from_year,to_year)
-print(df.shape)
-print(df.head())
-
-''
-''
-''
-
-# fig = px.
-
-# # Filter the data
-# filtered_gdp_df = gdp_df[
-#     (gdp_df['Country Code'].isin(selected_countries))
-#     & (gdp_df['Year'] <= to_year)
-#     & (from_year <= gdp_df['Year'])
-# ]
-
-# st.header('GDP over time', divider='gray')
-
-''
-
-# st.line_chart(
-#     filtered_gdp_df,
-#     x='Year',
-#     y='GDP',
-#     color='Country Code',
-# )
-
-''
-''
-
-
-# first_year = gdp_df[gdp_df['Year'] == from_year]
-# last_year = gdp_df[gdp_df['Year'] == to_year]
-
-# st.header(f'GDP in {to_year}', divider='gray')
-
-# ''
-
-# cols = st.columns(4)
-
-# for i, country in enumerate(selected_countries):
-#     col = cols[i % len(cols)]
-
-#     with col:
-#         first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-#         last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-#         if math.isnan(first_gdp):
-#             growth = 'n/a'
-#             delta_color = 'off'
-#         else:
-#             growth = f'{last_gdp / first_gdp:,.2f}x'
-#             delta_color = 'normal'
-
-#         st.metric(
-#             label=f'{country} GDP',
-#             value=f'{last_gdp:,.0f}B',
-#             delta=growth,
-#             delta_color=delta_color
-#         )
+st.text("""This app uses weather data from https://open-meteo.com/""") 
