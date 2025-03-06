@@ -23,7 +23,7 @@ st.set_page_config(
 # -----------------------------------------------------------------------------
 # Declare some useful functions.
 
-@st.cache_data
+@st.cache_data(max_entries=5)
 def get_data(lat,lon,from_year,to_year):
     start_date = f'{from_year}-07-01'
     end_date = f'{to_year}-06-01'
